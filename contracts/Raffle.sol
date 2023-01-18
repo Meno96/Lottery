@@ -13,6 +13,10 @@ error Raffle__RaffleNotOpen();
 error Raffle__TransferFailed();
 error Raffle__UpkeepNotNeeded(uint256 currentBalance, uint256 numPlayers, uint256 raffleState);
 
+// @title A sample Raffle Contract
+// @author Daniele Menin
+// @notice This contract is for creating a sample raffle contract
+// @dev This implements the Chainlink VRF Version 2
 contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     // Type Declarations
     enum RaffleState {
@@ -75,6 +79,13 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         emit RaffleEnter(msg.sender);
     }
 
+    // @dev This is the function that the Chainlink Keeper nodes call
+    // they look for `upkeepNeeded` to return True.
+    // the following should be true for this to return true:
+    // 1. The time interval has passed between raffle runs.
+    // 2. The lottery is open.
+    // 3. The contract has ETH.
+    // 4. Implicity, your subscription is funded with LINK.
     function checkUpkeep(
         bytes memory /* checkData */
     ) public view override returns (bool upkeepNeeded, bytes memory /* performData */) {
@@ -86,6 +97,8 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         return (upkeepNeeded, "0x0");
     }
 
+    // @dev Once `checkUpkeep` is returning `true`, this function is called
+    // and it kicks off a Chainlink VRF call to get a random winner.
     function performUpkeep(bytes calldata /* performData */) external override {
         (bool upkeepNeeded, ) = checkUpkeep("");
         if (!upkeepNeeded) {
@@ -106,6 +119,8 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         emit RequestedRaffleWinner(requestId);
     }
 
+    // @dev This is the function that Chainlink VRF node
+    // calls to send the money to the random winner.
     function fulfillRandomWords(uint256, uint256[] memory randomWords) internal override {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
