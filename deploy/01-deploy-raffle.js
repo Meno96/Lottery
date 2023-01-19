@@ -1,5 +1,9 @@
 const { network, ethers } = require("hardhat")
-const { networkConfig, developmentChains, VERIFICATION_BLOCK_CONFIRMATIONS} = require("../helper-hardhat-config")
+const {
+    networkConfig,
+    developmentChains,
+    VERIFICATION_BLOCK_CONFIRMATIONS,
+} = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
 
 const FUND_AMOUNT = ethers.utils.parseEther("1") // 1 Ether, or 1e18 (10^18) Wei
@@ -33,8 +37,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         vrfCoordinatorV2Address,
         subscriptionId,
         networkConfig[chainId]["gasLane"],
-        networkConfig[chainId]["keepersUpdateInterval"],
         networkConfig[chainId]["raffleEntranceFee"],
+        networkConfig[chainId]["keepersUpdateInterval"],
         networkConfig[chainId]["callbackGasLimit"],
     ]
     const raffle = await deploy("Raffle", {
